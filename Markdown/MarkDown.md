@@ -183,7 +183,7 @@ Tip: 使用连字符和管道创建表可能很麻烦。为了加快该过程，
 
 ~~世界是平坦的。~~ 我们现在知道世界是圆的。
 
-## 四、任务列表语法
+## 四、任务列表语法(Github似乎不支持...)
 
 - [x] Write the press release
 - [ ] Update the website
