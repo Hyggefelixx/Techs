@@ -131,13 +131,13 @@ ___
 - alt:图片不显示的时候代替显示的文字
 - title:鼠标hover的时候显示的文字
   
-![这是图片](/src/images/building.jpg "building")
+![这是图片](./src/images/building.jpg "building")
 
 ### 给图片添加链接
 
 将图像的Markdown写在方括号中，将链接添加在圆括号中
 
-[![autumn图片](/src/images/autumn.jpg "autumn 来自pexels")](https://www.pexels.com/zh-cn/)
+[![autumn图片](./src/images/autumn.jpg "autumn 来自pexels")](https://www.pexels.com/zh-cn/)
 
 ## 十一、转义字符语法
 
