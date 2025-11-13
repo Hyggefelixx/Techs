@@ -11,3 +11,6 @@ Recording of my learning process on several techs during production.
 
 - Markdown基本语法
 
+## Git
+
+- Git基本使用方式
