@@ -10,6 +10,24 @@
 
 `git commit`指令将**暂存区**的文件提交到**本地仓库**
 
+## Git 更改用户名
+
+### 查看用户名
+
+```bash
+# 查看全局用户名（所有仓库共用）
+git config --global user.name
+
+# 查看当前仓库用户名（仅当前仓库生效，优先级高于全局）
+git config user.name
+```
+
+### 修改用户名
+
+```bash
+git config --global user.name "你的新用户名"
+```
+
 ## 直观例子 Github仓库已建好，将本地文件上传至仓库
 
 ```bash
