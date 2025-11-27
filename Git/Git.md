@@ -73,3 +73,36 @@ git pull origin main
 - **Python项目**：`venv`以及`.idea`不用上传，一般使用`requirements.txt`进行项目的相关配置
   
 Git 会读取「当前文件所在目录」及「所有上级目录」的 .gitignore 文件，规则优先级是：当前目录的 .gitignore > 上级目录的 .gitignore
+
+## Git分支
+
+Git 分支是 Git 最核心、最强大的功能之一，核心作用是 “在不影响主代码的前提下，并行开发、隔离修改” —— 就像给项目 “开了多条平行时间线”，不同需求、不同版本的开发可以各自独立推进，最后按需合并，彻底解决了 “多人协作冲突”“功能开发与线上稳定冲突” 等问题。
+
+### 拉取远程仓库中指定分支
+
+```bash
+# 1. 若本地未克隆仓库，先克隆远程仓库（会拉取所有分支的元信息，但默认只下载main分支文件）
+git clone https://github.com/你的用户名/仓库名.git  # 替换为你的仓库URL
+cd 仓库名  # 进入克隆后的本地仓库目录
+
+# 2. 查看远程仓库的所有分支
+git fetch origin  # 拉取远程仓库的所有分支元信息（不下载文件，仅更新分支列表）
+git branch -r     # 列出远程所有分支（格式：origin/分支名，比如 origin/feature-登录）
+
+# 3. 场景1：首次拉取（本地没有对应分支）
+# 新建本地分支（命名建议和远程一致），并关联远程对应分支
+git checkout -b feature-支付 origin/feature-支付  # 核心命令！
+# 解释：
+# - checkout -b：创建并切换到新本地分支（feature-支付）
+# - origin/feature-支付：指定关联的远程分支（即要拉取的分支）
+
+# 拉取远程分支的所有文件到本地新分支（若步骤1已自动拉取，此步可省略，若文件不全执行）
+git pull origin feature-支付
+
+# 3. 场景2：更新已有分支（本地已经存在对应分支，拉取最新文件）
+# 先切换到本地对应的分支（必须切换到目标分支，否则会拉到其他分支）
+git checkout feature-支付  # 或 git switch feature-支付
+
+# 拉取远程该分支的最新文件（合并到本地分支）
+git pull origin feature-支付
+```
