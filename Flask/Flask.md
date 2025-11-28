@@ -23,6 +23,18 @@ pip install 新包名
 pip freeze > requirements.txt
 ```
 
+### 根据requirements.txt安装依赖项
+
+```bash
+pip install -r requirements.txt
+```
+
+如果遇到安装缓慢，可使用镜像源
+
+```bash
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+```
+
 ### 退出虚拟环境
 
 ```bash
