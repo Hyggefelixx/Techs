@@ -1,5 +1,7 @@
 # 如何使用Git
 
+Git不是只记录你改了哪几行代码，而是每次提交都拍一张整个项目的全家福；`push`不是传改的那几行，而是传这张全家福的记录，远程拿到记录后能还原出和本地一模一样的完整项目
+
 ## Git 工作区域
 
 - **工作区** .git所在目录
@@ -8,7 +10,15 @@
 
 `git add`指令将**工作区**的文件提交到**暂存区**
 
+> `git add`是准备快照，把工作区所有修改的文件，加入到待提交的暂存区
+
 `git commit`指令将**暂存区**的文件提交到**本地仓库**
+
+> `git commit`不是记录修改了什么，而是记录当前项目里所有文件的完整样子
+
+`git push`指令将**本地仓库**的文件提交到**远程仓库**
+
+> `git push`不是将改的那几行代码提交给远程，而是将拍照记录传给远程；远程拿到记录后，会根据记录还原出和本地一模一样的完整项目。但是Git不会每次都传所有文件，会对比这次快照和上次快照的差异部分，只传差异部分
 
 ## Git 更改用户名
 
@@ -110,3 +120,77 @@ git checkout feature-支付  # 或 git switch feature-支付
 # 拉取远程该分支的最新文件（合并到本地分支）
 git pull origin feature-支付
 ```
+
+### 更改了代码，提交到仓库中的新分支
+
+```bash
+# 创建并切换到本地新分支
+git checkout -b feature/new-function
+
+# 提交本地修改
+git add .
+
+git commit -m "add new function"
+
+# 推动本地新分支到Github远程仓库
+# 本地新分支默认不会自动关联远程，需手动推送并关联
+
+git push -u origin feature/new-function
+```
+
+### 开发规范流程
+
+基于远程develop开发新功能并提交到feature/train分支
+
+1. 拉取develop最新代码
+
+    ```bash
+    # 1. 先切到本地 develop 分支（如果不在的话）
+    git checkout develop
+
+    # 2. 拉取远程 develop 的最新代码，同步到本地 develop
+    git pull origin develop
+    # ✅ 这一步后，本地 develop 与 GitHub 远程 develop 完全一致
+    ```
+
+2. 基于纯净的 develop创建并切换到新分支
+
+    ```bash
+    # 创建 feature/train 分支，并立即切换过去（-b = branch + checkout）
+    git checkout -b feature/train
+    # ✅ 此时 feature/train 分支的起点是「最新的远程 develop」，且 develop 分支未被修改
+    ```
+
+3. 在新分支上开发新功能（全程不碰 develop 分支）
+
+    ```bash
+    # 开发代码（改文件、加功能）
+    # ...
+
+    # 开发完成后，提交到 feature/train 分支
+    git add .  # 暂存所有修改
+    git commit -m "feat: 开发xxx新功能（备注清晰）"  # 提交到本地 feature/train
+    ```
+
+4. 将新分支推送到 GitHub 远程仓库
+
+    ```bash
+    # 首次推送新分支，需要关联本地和远程（-u = upstream）
+    git push -u origin feature/train
+    # ✅ 后续在 feature/train 继续开发，只需 git add → git commit → git push 即可
+    ```
+
+5. 可选）：若远程 develop 有更新，同步到 feature/train（避免合并冲突）
+
+    如果开发过程中，同事往远程 develop 提交了新代码，建议把远程 develop 的更新同步到你的 feature/train 分支：
+
+    ```bash
+    # 1. 切回 develop 分支，拉取最新代码
+    git checkout develop
+    git pull origin develop
+
+    # 2. 切回 feature/train 分支，合并 develop 的最新代码
+    git checkout feature/train
+    git merge develop
+    # ✅ 这样你的新分支就包含了 develop 的最新代码，后续合并PR时不会有冲突
+    ```
