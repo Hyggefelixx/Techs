@@ -16,6 +16,10 @@
 
 ## 成员推理攻击
 
+如何简要理解成员推理攻击？
+
+相当于是，首先我有一个待攻击的模型，我有一部分数据，这部分数据有AB两类，A类是我明确知道这个模型训练的时候使用过的数据，B类是我明确知道这个模型训练的时候没有使用过的数据，我把AB两类数据放入这个模型，得到相关指标，并通过相关手段建立一个新的有关指标和AB类的模型，然后现在有一个新的数据，不知道模型训练的时候有没有用过，我把它放入这个模型得到指标然后把这个指标放入建立的新模型中，就得到了对这个新数据属于A类还是B类的判断
+
 > [MIA基础] Shokri, R., Stronati, M., Song, C., & Shmatikov, V. (2017). Membership Inference Attacks Against Machine Learning Models. Proceedings of the IEEE Symposium on Security and Privacy (S&P).
 
 - 摘要： 首次系统性地提出针对机器学习模型的成员推理攻击（MIA），是本研究中隐私泄露评估方法论的理论基础。
