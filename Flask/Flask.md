@@ -126,6 +126,54 @@ deactivate
         db.session.commit()
         return jsonify({"msg": "删除成功"}), 200
     ```
+### 文件上传场景下的 HTTP POST 请求格式
+
+「请求行 + 请求头 + 请求体」三部分
+
+```http
+# 1. 请求行（方法 + 路径 + 协议）
+POST /ajax-api/2.0/mlflow/train/upload HTTP/1.1
+
+# 2. 请求头（包含Authorization，浏览器自动加Content-Type）
+Host: localhost:5000  # 你的MLflow服务地址，浏览器自动加
+Authorization: Basic dXNlcjE6MTIzNDU2  # 用户名密码Base64编码（示例：user1:123456）
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW  # 浏览器自动生成
+User-Agent: Mozilla/5.0 ...  # 浏览器标识，自动加
+Accept: */*  # 接受的响应类型，自动加
+Content-Length: 12345  # 请求体长度，自动加
+Connection: keep-alive  # 连接方式，自动加
+
+# 3. 请求体（FormData格式，boundary分隔）
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="train.py"
+Content-Type: text/x-python  # 文件的MIME类型，浏览器自动识别
+
+# 这里是train.py文件的二进制内容（比如Python代码的字节流）
+import mlflow
+print("训练脚本开始执行")
+# ... 其他代码 ...
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--  # 结束分隔符
+```
+
+1. 请求行：定位后端接口
+   - POST：请求方法，和后端路由配置的 ['POST'] 严格对应；
+   - /ajax-api/2.0/mlflow/train/upload：请求路径，对应后端 get_train_endpoints 里注册的路由；
+   - HTTP/1.1：HTTP 协议版本，浏览器默认。
+  
+2. 请求头：关键是「Authorization + 自动生成的 Content-Type」
+   - Authorization 前端代码手动添加 后端用于校验身份（Basic Auth），对应你代码里从 sessionStorage 取的用户名密码；
+   - Content-Type 浏览器自动生成 告诉后端「这是 multipart/form-data 格式的请求，用 xxx 分隔符拆分内容」；核心是包含 boundary=xxxx，没有它后端无法解析文件；
+   - 其他头（Host/User-Agent 等）浏览器自动添加 辅助信息，无需关心。
+
+3. 请求体：FormData 的实际格式（核心）
+   - ------WebKitFormBoundary7MA4YWxkTrZu0gW：分隔符（和 Content-Type 里的 boundary 一致）；
+   - Content-Disposition: form-data; name="file"; filename="train.py"：描述字段信息：
+     - name="file"：对应前端 formData.append('file', file) 的 file 字段，后端通过 request.files['file'] 读取；
+     - filename="train.py"：文件原始名称；
+   - Content-Type: text/x-python：文件的 MIME 类型（浏览器识别.py 文件为文本类型）；
+   - 中间是文件的二进制内容（你的 Python 脚本代码）；
+   - ------WebKitFormBoundary7MA4YWxkTrZu0gW--：结束分隔符（末尾加--）。
 
 ## Jinjia2
 
