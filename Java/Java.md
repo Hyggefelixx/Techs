@@ -200,6 +200,46 @@ this表示当前对象
    - 静态方法，只能访问静态成员变量和静态成员方法
    - 类名调用
 
+### 继承
+让类之间产生子父关系，提高代码复用性
+
+#### 继承的特点
+1. java只支持单继承，一个子类只能继承一个父类
+2. 不支持多继承，子类不能继承多个父类
+3. 支持多层继承，子类A继承父类B，父类B可以继承父类C
+4. 每个类都直接或间接继承于Object
+
+#### 子类可以继承父类哪些东西
+1. 构造方法
+	- 父类的构造方法不能被子类继承
+2. 成员变量
+	- Java 子类**会继承父类所有成员变量**（`private`变量继承但无法直接访问，需通过`getter/setter`间接操作）；
+	- 访问权限（`public/protected/默认/private`）决定了子类是否能直接访问继承的变量；
+	- 子类与父类定义**同名变量**时，会发生「变量隐藏」，两者内存并存，默认访问子类自身变量，可通过`super`或父类强制转换访问父类被隐藏变量；
+	- 成员变量无多态性，访问目标编译时确定，与方法重写有本质区别。
+3. 成员方法
+	- 虚方法表 能(非private 非static 非final)
+	- 否则 不能
+
+#### 成员变量的访问特点
+1. 就近原则：谁离我近，我就用谁
+	- this本类 super父类
+
+#### 成员方法访问特点
+1. 就近原则
+	- this调用就近原则，super调用直接找父类 
+
+#### 方法的重写
+应用场景：当父类中的方法，不能满足子类现在的需求时，需要将方法重写；子类中重写的方法上面需要加上@Override
+
+本质：子类覆盖了父类虚方法表中继承下来的方法
+
+建议：重写方法尽量和父类保持一致
+
+#### 构造方法的访问特点
+子类构造方法中隐藏的super()去访问父类的无参构造
+
+
 ## String
 
 字符串在Lang包下，核心包，不用导入
@@ -383,6 +423,51 @@ System.out.println(sj.toString());
 特点：
 1. 长度可变
 2. 存储引用数据类型，如果要存基本数据类型，要转变为包装类
+
+### ArrayList基本使用
+```Java
+// 创建集合
+// <>泛型，用来限制数据类型
+ArrayList<String> list = new ArrayList<>();
+
+// 添加元素
+boolean result = list.add("aaa"); // true表示添加成功
+list.add("bbb");
+list.add("ccc");
+
+// 删除元素
+boolean result2 = list.remove("aaa"); // 返回删除成功与否
+
+String str = list.remove(0); // 返回被删除的元素
+
+// 修改元素
+String str1 = list.set(1,"ddd"); // 返回被修改的元素
+
+// 查询元素
+String str2 = list.get(0); // 返回元素
+
+// 获取集合长度 方法
+int size = list.size();
+```
+
+## 基本数据类型对应的包装类
+1. byte Byte
+2. short Short
+3. char Character
+4. int Integer
+5. long Long
+6. float Float
+7. double Double
+8. boolean Boolean
+
+```Java
+ArrayList<Integer> list = new ArrayList<>();
+
+list.add(1);
+list.add(2);
+list.add(3);
+list.add(4);
+```
 
 ## 网络编程
 

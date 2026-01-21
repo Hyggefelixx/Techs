@@ -108,3 +108,19 @@ boot  etc  lib   lib64  lost+found  mnt    proc  run   snap  sys  usr
 ### 特殊目录
 
 - snap
+
+## 问题
+
+#### 前段时间把一个项目部署到了服务器上，Nginx，但是很长时间没动，已经忘记部署在哪里了，如何关闭？
+```bash
+# linux查看端口占用，发现时nginx服务
+sudo lsof -i:80
+
+# 停止nginx服务
+sudo systemctl stop nginx
+
+# 可选，禁用Nginx开机自启
+sudo systemctl disable nginx
+```
+
+
