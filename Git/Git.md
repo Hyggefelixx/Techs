@@ -121,6 +121,17 @@ git checkout feature-支付  # 或 git switch feature-支付
 git pull origin feature-支付
 ```
 
+### 删除远程仓库中的分支
+#### 核心删除命令
+```bash
+# 完整规范写法，推荐
+git push origin --delete fronted
+
+# 简化写法，常用
+git push origin :fronted
+```
+核心：本地分支  ：远程分支
+
 ### 更改了代码，提交到仓库中的新分支
 
 ```bash
@@ -194,3 +205,110 @@ git push -u origin feature/new-function
     git merge develop
     # ✅ 这样你的新分支就包含了 develop 的最新代码，后续合并PR时不会有冲突
     ```
+
+### 推送到远程`fronted`分支的完整操作流程
+
+推送到指定远程分支的核心是**明确本地分支与远程`fronted`分支的关联 / 推送目标**，分「首次推送（本地无对应分支 / 未关联）」和「日常推送（本地已关联远程 fronted）」两种场景，步骤清晰且适配前端项目，以下是详细操作：
+
+##### 前提确认
+
+1. 确保远程仓库已创建`fronted`分支（若未创建，**本地首次推送时会自动在远程创建该分支**，无需提前在 Git 平台手动创建）；
+2. 确保终端处于**前端项目根目录**，且已完成`.gitignore`配置、文件修改（若为新文件 / 修改文件）。
+
+#### 场景 1：首次推送到远程`fronted`分支（核心，最常用）
+
+适用于**本地无对应分支**、**本地分支未关联远程 fronted**，或**想将当前本地分支推送到远程新建的 fronted 分支**，分「基于当前分支直接推送」和「新建本地 fronted 分支再推送」两种常用方式（推荐第二种，分支管理更规范）。
+
+##### 方式 1：新建本地`fronted`分支并推送到远程（推荐，分支一一对应）
+
+先在本地创建与远程同名的`fronted`分支（规范要求），再切换到该分支，最后推送到远程，全程 3 步：
+
+```bash
+# 1. （可选）若在主分支，先拉取远程最新代码，避免本地代码过时
+git pull origin main # 远程主分支是master则替换为git pull origin master
+
+# 2. 创建本地fronted分支并切换到该分支（-b = branch + checkout，一步到位）
+git checkout -b fronted
+
+# 3. 暂存+提交本地文件（若为新分支首次提交，必须先做这步）
+git add . # 暂存所有未被忽略的文件
+git commit -m "feat: 初始化fronted分支，提交XX功能代码" # 自定义提交信息
+
+# 4. 首次推送到远程fronted分支，-u 绑定「本地fronted」与「远程fronted」
+# 推送后远程会自动创建fronted分支，后续可直接git push无需指定分支
+git push -u origin fronted
+```
+
+##### 方式 2：将当前本地分支（如 main/dev）直接推送到远程 fronted 分支
+
+若不想新建本地分支，直接把当前所在分支的代码推送到远程`fronted`分支（会覆盖远程 fronted 原有代码，谨慎使用）：
+```bash
+# 先完成暂存+提交（若有未提交的修改）
+git add .
+git commit -m "feat: 将当前分支代码推送到远程fronted分支"
+
+# 首次推送，指定推送目标：本地当前分支 → 远程fronted分支，-u 绑定关联
+git push -u origin HEAD:fronted
+# 说明：HEAD 代表「本地当前所在分支」，该命令等价于「把本地当前分支推送到远程origin的fronted分支」
+```
+
+#### 场景 2：日常开发推送（本地已关联远程`fronted`分支）
+
+若已完成**场景 1 的首次推送（含`-u`绑定）**，后续开发中修改代码后，直接执行**3 步标准流程**即可，无需再指定分支，极简操作：
+
+```bash
+# 1. （可选，推荐）查看修改状态，确认提交内容（避免推无关文件）
+git status
+
+# 2. 暂存+提交到本地fronted分支
+git add .
+git commit -m "fix: 修复fronted分支XX页面bug/feat: 新增XX功能" # 按规范写提交信息
+
+# 3. 直接推送，自动推送到远程fronted分支（-u已绑定，无需额外参数）
+git push
+```
+
+#### 场景 3：将本地其他分支（如 dev/feature）推送到远程`fronted`分支
+
+若在本地`dev`分支开发完成，想把`dev`分支的代码推送到远程`fronted`分支（非首次，远程已存在 fronted），直接指定推送源和目标：
+
+```bash
+# 无需切换分支，在当前dev分支直接执行
+git push origin dev:fronted
+# 格式：git push 远程别名 本地分支:远程分支
+# 说明：将本地dev分支的代码推送到远程origin的fronted分支
+```
+
+#### 关键补充命令（前端开发常用）
+
+##### 1. 切换到本地`fronted`分支（后续开发需先切分支）
+```bash
+git checkout fronted
+# 或Git 2.23+版本推荐：git switch fronted
+```
+
+##### 2. 拉取远程`fronted`分支最新代码（多人协作必做，推送前先拉取）
+
+避免本地代码与远程`fronted`分支冲突，**推送前务必先拉取**：
+```bash
+# 已绑定分支：直接拉取
+git pull
+
+# 未绑定分支/指定拉取：
+git pull origin fronted
+```
+
+##### 3. 查看分支关联状态（确认本地 fronted 是否绑定远程 fronted）
+```bash
+git branch -vv
+# 终端显示：* fronted  1234567 [origin/fronted] 提交信息 → 说明已成功绑定
+```
+
+##### 4. 若远程已存在 fronted，本地想重新关联（解决分支绑定异常）
+```bash
+# 先切换到本地fronted分支
+git checkout fronted
+# 绑定本地fronted与远程origin/fronted
+git branch --set-upstream-to=origin/fronted fronted
+# 绑定后即可用git pull/git push直接操作
+```

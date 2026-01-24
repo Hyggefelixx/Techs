@@ -104,6 +104,104 @@ npm install --save-dev @types/react @types/react-dom
 ```
 3. 编写TSX组件
 
+### TSX核心基础
+1. 变量 / 函数简单类型标注（最基础，随处可见）
+	**作用**：告诉 TS 变量 / 函数参数 / 返回值是什么类型，编辑器提示 + 防错，项目里定义变量、写接口回调必用。
+	**核心语法**：`变量: 类型` / `函数(参数: 类型): 返回值类型`
+	**项目示例**（登录页提交、普通变量）：
+```tsx
+// 1. 普通变量标注（string/number/boolean）
+const pageTitle: string ="登录页"; //字符串
+const isLogin: boolean = false; // 布尔值
+const pageSize: number = 10;    // 数字
+
+// 2. 函数标注（入参+返回值，async函数返回值是Promise<类型>） 
+// 登录提交函数：入参是API.LoginParams类型，返回值是Promise<void>（无返回值） 
+const handleSubmit: (params: API.LoginParams) => Promise<void> = async (params) => { 
+	await request('/api/login', { method: 'POST', data: params }); 
+	};
+```
+
+2. 接口 / 类型别名（定义数据结构，对接后端接口必用）
+	**作用**：定义**对象的固定结构**（比如后端返回的用户信息、接口入参），项目里 `src/typings.d.ts` 的 `API` 命名空间全是这个，也是 Pro 组件绑定数据的基础。
+	**核心语法**：`type 别名 = { 键: 类型 }`（推荐快速定义）、`interface 接口名 { 键: 类型 }`（功能类似，项目里混用）
+	**项目示例**（对应你熟悉的 `API.CurrentUser`）：
+```tsx
+// 项目里的实际写法（src/typings.d.ts） 
+declare namespace API { 
+	// 定义用户信息结构：固定字段+对应类型，可选字段加? 
+	type CurrentUser = { 
+		name?: string; // 可选字段：可能返回，也可能不返回 
+		avatar?: string; 
+		userid: string; // 必选字段：后端一定返回 
+		notifyCount?: number; 
+	}; 
+	// 定义登录入参结构 
+	type LoginParams = { 
+		username: string; 
+		password: string; 
+		autoLogin?: boolean; 
+	}; 
+}
+```
+
+ 3. 泛型（Pro 组件核心，不用懂原理，会用即可）
+	**作用**：给**组件 / 函数 “传类型参数”**，让组件知道要处理什么类型的数据（比如 `useState`、`request`、`ProTable` 全用泛型），是 TS 结合 React/Pro 组件的核心用法。
+	**核心语法**：`<类型>`（组件 / 函数后加，指定处理的类型）
+	**项目高频示例**（直接抄就行）：
+```tsx
+// 1. useState泛型：指定状态类型（初始值类型明确可省略，不明确必须加） 
+const [name, setName] = useState<string>(''); // 状态是字符串 
+const [user, setUser] = useState<API.CurrentUser | undefined>(undefined); // 状态是用户信息或undefined 
+
+// 2. Umi request请求泛型：指定接口返回值类型，返回值会自动提示字段 
+const res = await request<API.CurrentUser>('/api/currentUser'); // res会提示name/avatar等字段 
+console.log(res.name); // 编辑器自动提示，不会写错字段 
+
+// 3. ProTable泛型：指定表格行数据类型，columns自动提示dataIndex <ProTable<API.UserListItem> 
+	columns={[{ title: '用户名', dataIndex: 'name' }]} // 自动提示dataIndex可选字段 
+	request={async () => { 
+		const res = await request<{ list: API.UserListItem[]; total: number }>('/api/user/list'); 
+		return { data: res.list, total: res.total }; 
+	}} 
+/>
+```
+
+4. 类型断言（快速兼容，项目里对接表单 / 接口必用）
+	**作用**：告诉 TS「我比你更清楚这个值的类型，按我说的来」，解决 “TS 推断的类型和实际类型不一致” 的问题（比如表单提交值、接口返回值），项目里 `onFinish` 里高频用。
+	**核心语法**：`值 as 目标类型`
+	**项目示例**（登录表单提交）：
+```tsx
+// 表单onFinish的values默认是unknown类型，断言为API.LoginParams，才能正常传参 
+
+<LoginForm 
+	onFinish={async (values) => { 
+		await handleSubmit(values as API.LoginParams); // 关键：values as 目标类型 
+	}} 
+/>
+```
+
+5. 可选链 & 空值合并（防错神器，项目里随处可见）
+
+	**作用**：避免访问「`undefined/null` 对象的属性」报错（比如 `initialState` 未初始化、后端返回字段为空），比 JS 的容错写法更简洁，TS/JS 都支持，项目里必用。
+	**核心语法**：
+		- 可选链：`obj?.key`（obj 存在才访问 key，否则返回 undefined）
+		- 空值合并：`obj ?? 默认值`（obj 是 undefined/null 时，用默认值，比 || 更精准）
+    **项目示例**（取全局用户信息）：
+```tsx
+const { initialState } = useModel('@@initialState'); 
+
+// 可选链：initialState存在才取currentUser，currentUser存在才取name 
+const userName = initialState?.currentUser?.name; 
+
+// 空值合并：如果userName是undefined/null，显示"游客" 
+const showName = userName ?? "游客"; 
+
+// 组合使用：更严谨 
+const userAvatar = initialState?.currentUser?.avatar ?? "/default-avatar.svg";
+```
+
+
 ## React项目构建方式
 
 ### 主要是指 **项目初始化(脚手架)** 和 **最终打包构建(编译部署)**
